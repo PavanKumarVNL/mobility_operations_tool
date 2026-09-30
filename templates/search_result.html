@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Result</title>
+</head>
+
+<body>
+
+    <h1>Search Result</h1>
+
+    {% if search_result.type == "Not Found" %}
+
+        <h2>No Result Found</h2>
+        <p>No driver or trip matched your search.</p>
+
+    {% elif search_result.type == "Driver" %}
+
+        <h2>Driver Found</h2>
+
+        <h3>Driver Profile</h3>
+
+        <table border="1">
+            {% for key, value in search_result.profile.items() %}
+            <tr>
+                <th>{{ key }}</th>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+        <h3>Driver KPIs</h3>
+
+        <table border="1">
+
+            <tr>
+                <th>Total Trips</th>
+                <td>{{ search_result.metrics.total_trips }}</td>
+            </tr>
+
+            <tr>
+                <th>Completed Trips</th>
+                <td>{{ search_result.metrics.completed_trips }}</td>
+            </tr>
+
+            <tr>
+                <th>Cancelled Trips</th>
+                <td>{{ search_result.metrics.cancelled_trips }}</td>
+            </tr>
+
+            <tr>
+                <th>Revenue</th>
+                <td>₹{{ "%.2f"|format(search_result.metrics.revenue) }}</td>
+            </tr>
+
+            <tr>
+                <th>Average Fare</th>
+                <td>₹{{ "%.2f"|format(search_result.metrics.average_fare) }}</td>
+            </tr>
+
+        </table>
+
+    {% elif search_result.type == "Trip" %}
+
+            <h2>Trip Found</h2>
+        
+            <table border="1">
+                {% for key, value in search_result.data.items() %}
+                <tr>
+                    <th>{{ key }}</th>
+                    <td>{{ value }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+        {% elif search_result.type == "Zone" %}
+      <h2>Zone Found</h2>
+
+      <table border="1">
+        {% for key, value in search_result.data.items() %}
+        <tr>
+          <th>{{ key }}</th>
+          <td>{{ value }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+    {% endif %}
+
+    <br>
+
+    <a href="/">Back to Dashboard</a>
+
+</body>
+</html>

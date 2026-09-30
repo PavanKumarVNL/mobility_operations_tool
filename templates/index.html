@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobility Operations Intelligence</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ========================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================================================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🚗</div>
+
+            <div>
+                <h1>Mobility Ops</h1>
+                <span>Intelligence Platform</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <a href="#overview" class="nav-item active">
+                <span>▦</span>
+                Overview
+            </a>
+
+            <a href="#drivers" class="nav-item">
+                <span>♙</span>
+                Drivers
+            </a>
+
+            <a href="#zones" class="nav-item">
+                <span>⌖</span>
+                Zones
+            </a>
+
+            <a href="#cancellations" class="nav-item">
+                <span>×</span>
+                Cancellations
+            </a>
+
+            <a href="#anomalies" class="nav-item">
+                <span>⚠</span>
+                Anomalies
+            </a>
+
+            <a href="#insights" class="nav-item">
+                <span>✦</span>
+                Insights
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Online</strong>
+                    <small>Analytics engine active</small>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ========================================================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================================= -->
+
+    <main class="main-content">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+                <div class="breadcrumb">
+                    Operations / Dashboard
+                </div>
+
+                <h2>Mobility Operations Dashboard</h2>
+
+                <p>
+                    Monitor drivers, trips, demand, cancellations and operational anomalies.
+                </p>
+            </div>
+
+            <div class="topbar-actions">
+
+                {% if success %}
+                    <div class="data-status">
+                        <span class="status-dot"></span>
+                        Dataset Loaded
+                    </div>
+                {% endif %}
+
+                <a href="#upload" class="upload-button">
+                    + Upload Data
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- ===================================================== -->
+        <!-- DATA UPLOAD -->
+        <!-- ===================================================== -->
+
+        <section class="upload-panel" id="upload">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">DATA INGESTION</span>
+                    <h3>Upload Mobility Dataset</h3>
+                    <p>
+                        Upload the three required CSV files to generate the dashboard.
+                    </p>
+                </div>
+
+            </div>
+
+            <form action="/" method="POST" enctype="multipart/form-data">
+
+                <div class="file-input">
+
+                    <label for="drivers">
+                        <span class="file-icon">👨‍✈️</span>
+
+                        <strong>Drivers CSV</strong>
+
+                        <small>
+                            driver_id, name, city, rating...
+                        </small>
+
+                        <input
+                            type="file"
+                            id="drivers"
+                            name="drivers"
+                            accept=".csv"
+                            required
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <div class="file-input">
+
+                    <label for="trips">
+                        <span class="file-icon">🚕</span>
+
+                        <strong>Trips CSV</strong>
+
+                        <small>
+                            trips, fares, zones, timestamps...
+                        </small>
+
+                        <input
+                            type="file"
+                            id="trips"
+                            name="trips"
+                            accept=".csv"
+                            required
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <div class="file-input">
+
+                    <label for="activity">
+                        <span class="file-icon">◷</span>
+
+                        <strong>Activity CSV</strong>
+
+                        <small>
+                            online, busy, idle, offline...
+                        </small>
+
+                        <input
+                            type="file"
+                            id="activity"
+                            name="activity"
+                            accept=".csv"
+                            required
+                        >
+
+                    </label>
+
+                </div>
+
+
+                <button type="submit" class="primary-button">
+                    Load Dataset →
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- ERRORS -->
+        <!-- ===================================================== -->
+
+        {% if errors %}
+
+        <section class="alert-panel error-panel">
+
+            <div class="alert-icon">⚠</div>
+
+            <div>
+                <strong>Data Validation Issues</strong>
+
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </section>
+
+        {% endif %}
+
+
+        {% if success %}
+
+
+        <!-- ===================================================== -->
+        <!-- DATASET SUMMARY -->
+        <!-- ===================================================== -->
+
+        <section class="dataset-summary">
+
+            <div>
+                <span>Drivers Records</span>
+                <strong>{{ driver_count }}</strong>
+            </div>
+
+            <div>
+                <span>Trip Records</span>
+                <strong>{{ trip_count }}</strong>
+            </div>
+
+            <div>
+                <span>Activity Records</span>
+                <strong>{{ activity_count }}</strong>
+            </div>
+
+            <div>
+                <span>Driver Index</span>
+                <strong>{{ driver_index_count }}</strong>
+            </div>
+
+            <div>
+                <span>Trip Index</span>
+                <strong>{{ trip_index_count }}</strong>
+            </div>
+
+            <div>
+                <span>Zone Index</span>
+                <strong>{{ zone_index_count }}</strong>
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- KPI SECTION -->
+        <!-- ===================================================== -->
+
+        <section id="overview">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">OVERVIEW</span>
+                    <h3>Operational KPIs</h3>
+                </div>
+
+            </div>
+
+
+            <div class="kpi-grid">
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Drivers</span>
+                    <strong>{{ driver_count }}</strong>
+                    <span class="kpi-icon">👨‍✈️</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Active Drivers</span>
+
+                    <strong>
+                        {{ active_driver_count }}
+                    </strong>
+
+                    <span class="kpi-icon">●</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Riders</span>
+
+                    <strong>
+                        {{ trip_summary.total_riders }}
+                    </strong>
+
+                    <span class="kpi-icon">♙</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Total Trips</span>
+
+                    <strong>
+                        {{ trip_summary.total_trips }}
+                    </strong>
+
+                    <span class="kpi-icon">🚕</span>
+                </div>
+
+
+                <div class="kpi-card positive">
+                    <span class="kpi-label">Completed Trips</span>
+
+                    <strong>
+                        {{ trip_summary.completed_trips }}
+                    </strong>
+
+                    <span class="kpi-icon">✓</span>
+                </div>
+
+
+                <div class="kpi-card warning">
+                    <span class="kpi-label">Cancelled Trips</span>
+
+                    <strong>
+                        {{ trip_summary.cancelled_trips }}
+                    </strong>
+
+                    <span class="kpi-icon">×</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Completion Rate</span>
+
+                    <strong>
+                        {{ "%.1f"|format(trip_summary.completion_rate) }}%
+                    </strong>
+
+                    <span class="kpi-icon">↗</span>
+                </div>
+
+
+                <div class="kpi-card warning">
+                    <span class="kpi-label">Cancellation Rate</span>
+
+                    <strong>
+                        {{ "%.1f"|format(trip_summary.cancellation_rate) }}%
+                    </strong>
+
+                    <span class="kpi-icon">!</span>
+                </div>
+
+
+                <div class="kpi-card revenue">
+                    <span class="kpi-label">Total Revenue</span>
+
+                    <strong>
+                        ₹{{ "%.0f"|format(trip_summary.total_revenue) }}
+                    </strong>
+
+                    <span class="kpi-icon">₹</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Average Fare</span>
+
+                    <strong>
+                        ₹{{ "%.0f"|format(trip_summary.average_fare) }}
+                    </strong>
+
+                    <span class="kpi-icon">◈</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Average Distance</span>
+
+                    <strong>
+                        {{ "%.1f"|format(trip_summary.average_distance) }} km
+                    </strong>
+
+                    <span class="kpi-icon">↔</span>
+                </div>
+
+
+                <div class="kpi-card">
+                    <span class="kpi-label">Average Duration</span>
+
+                    <strong>
+                        {{ "%.1f"|format(trip_summary.average_duration) }} min
+                    </strong>
+
+                    <span class="kpi-icon">◷</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- SEARCH -->
+        <!-- ===================================================== -->
+
+        <section class="search-section">
+
+            <div>
+
+                <span class="eyebrow">SEARCH ENGINE</span>
+
+                <h3>Find Driver or Trip</h3>
+
+                <p>
+                    Search using a Driver ID or Trip ID.
+                </p>
+
+            </div>
+
+
+            <form
+                action="/search"
+                method="POST"
+                class="search-form"
+            >
+
+                <input
+                    type="text"
+                    name="search_query"
+                    placeholder="e.g. D102 or T1001"
+                    required
+                >
+
+                <button type="submit" class="primary-button">
+                    Search
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- DRIVER ANALYTICS -->
+        <!-- ===================================================== -->
+
+        <section id="drivers">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">DRIVER ANALYTICS</span>
+                    <h3>Driver Performance</h3>
+                    <p>
+                        Review driver-level operational performance.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <!-- Driver selector -->
+
+                <div class="panel driver-selector-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h4>Select Driver</h4>
+                            <span>View individual performance</span>
+                        </div>
+
+                    </div>
+
+
+                    <select
+                        id="driverSelect"
+                        class="dashboard-select"
+                        onchange="showDriver(this.value)"
+                    >
+
+                        <option value="">
+                            Select a driver
+                        </option>
+
+                        {% for driver in driver_metrics %}
+
+                        <option value="{{ driver.driver_id }}">
+                            {{ driver.driver_id }} —
+                            {{ driver.driver_name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <div id="driverDetails" class="driver-details">
+
+                        <div class="empty-state">
+                            Select a driver to view performance.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Top drivers -->
+
+                <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Top Drivers by Completed Trips</h4>
+            <span>Top 10 performers</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Driver</th>
+                    <th>City</th>
+                    <th>Completed Trips</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for driver in top_drivers_by_trips %}
+
+                <tr>
+
+                    <td>
+                        <span class="rank-badge">
+                            {{ loop.index }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>{{ driver.driver_name }}</strong>
+                        <small>{{ driver.driver_id }}</small>
+                    </td>
+
+                    <td>
+                        {{ driver.city }}
+                    </td>
+
+                    <td>
+                        <strong>{{ driver.completed_trips }}</strong>
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+            </div>
+
+
+            <!-- Revenue ranking -->
+
+            <div class="panel full-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h4>Top Drivers by Revenue</h4>
+                        <span>Highest completed-trip revenue</span>
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Driver</th>
+                                <th>City</th>
+                                <th>Trips</th>
+                                <th>Completed</th>
+                                <th>Cancellation</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for driver in top_drivers_by_revenue %}
+
+                            <tr>
+
+                                <td>
+                                    <span class="rank-badge">
+                                        {{ loop.index }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>{{ driver.driver_name }}</strong>
+                                    <small>{{ driver.driver_id }}</small>
+                                </td>
+
+                                <td>{{ driver.city }}</td>
+
+                                <td>{{ driver.total_trips }}</td>
+
+                                <td>{{ driver.completed_trips }}</td>
+
+                                <td>
+                                    {{ "%.1f"|format(driver.cancellation_rate) }}%
+                                </td>
+
+                                <td class="money">
+                                    ₹{{ "%.0f"|format(driver.revenue) }}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- ZONE ANALYTICS -->
+        <!-- ===================================================== -->
+
+        <section id="zones">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">ZONE ANALYTICS</span>
+                    <h3>Zone Performance</h3>
+                    <p>
+                        Compare demand and cancellation activity across zones.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <!-- Zone metrics -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h4>Zone Overview</h4>
+                            <span>Select a zone to inspect its metrics</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="filter-row">
+
+                        <select
+                            id="zoneSelect"
+                            class="dashboard-select"
+                            onchange="showZone(this.value)"
+                        >
+
+                            <option value="">
+                                Select Zone
+                            </option>
+
+                            {% for zone in zone_metrics %}
+
+                            <option value="{{ zone.city }}|{{ zone.zone }}">
+                                {{ zone.city }} — {{ zone.zone }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div id="zoneDetails">
+
+                        <div class="empty-state">
+                            Select a zone to view its performance.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Peak demand -->
+
+                <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Demand by Hour</h4>
+            <span>Trip requests by hour of day</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Hour</th>
+                    <th>Total Trips</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for hour, count in hourly_demand.items() %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ hour }}:00</strong>
+                    </td>
+
+                    <td>
+                        {{ count }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="peak-callout">
+
+        <span>Peak Demand</span>
+
+        <strong>
+            {{ peak_demand["hour"] }}:00
+        </strong>
+
+        <small>
+            {{ peak_demand["trip_count"] }} trips
+        </small>
+
+    </div>
+
+</div>
+            </div>
+
+
+            <!-- Zone rankings -->
+
+            <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Top Zones by Demand</h4>
+            <span>Highest trip volume</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Zone</th>
+                    <th>City</th>
+                    <th>Total Trips</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for zone in top_zones_by_demand %}
+
+                <tr>
+
+                    <td>
+                        <span class="rank-badge">
+                            {{ loop.index }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>{{ zone.zone }}</strong>
+                    </td>
+
+                    <td>
+                        {{ zone.city }}
+                    </td>
+
+                    <td>
+                        <strong>{{ zone.total_trips }}</strong>
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+                <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Top Zones by Cancellations</h4>
+            <span>Zones with highest cancellation volume</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Zone</th>
+                    <th>City</th>
+                    <th>Cancelled Trips</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for zone in top_zones_by_cancellations %}
+
+                <tr>
+
+                    <td>
+                        <span class="rank-badge">
+                            {{ loop.index }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>{{ zone.zone }}</strong>
+                    </td>
+
+                    <td>
+                        {{ zone.city }}
+                    </td>
+
+                    <td>
+                        <strong>{{ zone.cancelled_trips }}</strong>
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- UTILIZATION -->
+        <!-- ===================================================== -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">DRIVER UTILIZATION</span>
+                    <h3>Workforce Utilization</h3>
+                </div>
+
+            </div>
+
+
+            <div class="panel full-panel">
+
+                <div class="table-wrapper utilization-table">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Driver</th>
+                                <th>Online Hours</th>
+                                <th>Busy Hours</th>
+                                <th>Idle Hours</th>
+                                <th>Utilization</th>
+                                <th>Level</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for item in utilization_metrics[:15] %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ item.driver_id }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ "%.1f"|format(item.online_hours) }}
+                                </td>
+
+                                <td>
+                                    {{ "%.1f"|format(item.busy_hours) }}
+                                </td>
+
+                                <td>
+                                    {{ "%.1f"|format(item.idle_hours) }}
+                                </td>
+
+                                <td>
+
+                                    <div class="progress-wrapper">
+
+                                        <div class="progress-bar">
+
+                                            <div
+                                                class="progress-fill"
+                                                data-width="{{ item.utilization }}"
+                                            ></div>
+
+                                        </div>
+
+                                        <span>
+                                            {{ "%.1f"|format(item.utilization) }}%
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="status-badge">
+                                        {{ item.classification }}
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- CANCELLATIONS -->
+        <!-- ===================================================== -->
+
+        <section id="cancellations">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">CANCELLATION INTELLIGENCE</span>
+                    <h3>Cancellation Analysis</h3>
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Cancellation Reasons</h4>
+            <span>Breakdown by cancellation category</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Cancellation Reason</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for reason, count in cancellation_summary.by_reason.items() %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ reason }}</strong>
+                    </td>
+
+                    <td>
+                        {{ count }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+                <div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h4>Cancellation by Hour</h4>
+            <span>Cancellation volume by hour of day</span>
+        </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Hour</th>
+                    <th>Cancelled Trips</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for hour, count in cancellation_summary.by_hour.items() %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ hour }}:00</strong>
+                    </td>
+
+                    <td>
+                        {{ count }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- ANOMALIES -->
+        <!-- ===================================================== -->
+
+        <section id="anomalies">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">DATA QUALITY & RISK</span>
+                    <h3>Anomaly Detection</h3>
+                    <p>
+                        Detected operational anomalies from the uploaded dataset.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="anomaly-summary">
+
+                <div class="anomaly-count-card">
+
+                    <span>Total Anomalies</span>
+
+                    <strong>
+                        {{ anomaly_summary.trip_anomalies|length
+                           + anomaly_summary.driver_anomalies|length }}
+                    </strong>
+
+                </div>
+
+                <div class="anomaly-count-card">
+
+                    <span>Trip Anomalies</span>
+
+                    <strong>
+                        {{ anomaly_summary.trip_anomalies|length }}
+                    </strong>
+
+                </div>
+
+                <div class="anomaly-count-card">
+
+                    <span>Driver Anomalies</span>
+
+                    <strong>
+                        {{ anomaly_summary.driver_anomalies|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel full-panel">
+
+                <div class="panel-header">
+
+                    <h4>Trip Anomalies</h4>
+
+                </div>
+
+
+                <div class="table-wrapper anomaly-table">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Trip ID</th>
+                                <th>Issue</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for anomaly in anomaly_summary.trip_anomalies[:30] %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ anomaly.trip_id }}</strong>
+                                </td>
+
+                                <td>
+                                    <span class="anomaly-badge">
+                                        {{ anomaly.issue }}
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel full-panel">
+
+                <div class="panel-header">
+
+                    <h4>Driver Anomalies</h4>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Driver ID</th>
+                                <th>Issue</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        {% for anomaly in anomaly_summary.driver_anomalies %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ anomaly.driver_id }}</strong>
+                                </td>
+
+                                <td>
+                                    <span class="anomaly-badge">
+                                        {{ anomaly.issue }}
+                                    </span>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ===================================================== -->
+        <!-- OPERATIONAL INSIGHTS -->
+        <!-- ===================================================== -->
+
+        <section id="insights">
+
+            <div class="section-heading">
+
+                <div>
+                    <span class="eyebrow">INSIGHTS ENGINE</span>
+                    <h3>Operational Insights</h3>
+                    <p>
+                        Automatically generated from the analytics engine.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="insights-grid">
+
+                {% for insight in insights %}
+
+                <div class="insight-card">
+
+                    <span class="insight-icon">✦</span>
+
+                    <p>
+                        {{ insight }}
+                    </p>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        {% endif %}
+
+    </main>
+
+</div>
+
+
+<!-- ============================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ============================================================= -->
+
+<script>
+
+    /*
+     * Driver metrics generated by Flask.
+     * This lets the dropdown work without another backend request.
+     */
+
+    const driverMetrics = [
+        {% for driver in driver_metrics %}
+        {
+            driver_id: "{{ driver.driver_id }}",
+            driver_name: "{{ driver.driver_name }}",
+            city: "{{ driver.city }}",
+            total_trips: {{ driver.total_trips }},
+            completed_trips: {{ driver.completed_trips }},
+            cancelled_trips: {{ driver.cancelled_trips }},
+            completion_rate: {{ driver.completion_rate }},
+            cancellation_rate: {{ driver.cancellation_rate }},
+            revenue: {{ driver.revenue }},
+            average_fare: {{ driver.average_fare }},
+            average_distance: {{ driver.average_distance }},
+            average_fare_per_km: {{ driver.average_fare_per_km }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    function showDriver(driverId) {
+
+        const container =
+            document.getElementById("driverDetails");
+
+        if (!driverId) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Select a driver to view performance.
+                </div>
+            `;
+
+            return;
+        }
+
+        const driver =
+            driverMetrics.find(
+                item => item.driver_id === driverId
+            );
+
+        if (!driver) {
+            return;
+        }
+
+        container.innerHTML = `
+
+            <div class="driver-profile">
+
+                <div class="driver-avatar">
+                    ${driver.driver_name.charAt(0)}
+                </div>
+
+                <div>
+
+                    <h3>${driver.driver_name}</h3>
+
+                    <span>
+                        ${driver.driver_id}
+                        · ${driver.city}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="driver-metric-grid">
+
+                <div>
+                    <span>Total Trips</span>
+                    <strong>${driver.total_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Completed</span>
+                    <strong>${driver.completed_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Cancelled</span>
+                    <strong>${driver.cancelled_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Completion Rate</span>
+                    <strong>
+                        ${driver.completion_rate.toFixed(1)}%
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Cancellation Rate</span>
+                    <strong>
+                        ${driver.cancellation_rate.toFixed(1)}%
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Revenue</span>
+                    <strong>
+                        ₹${driver.revenue.toFixed(0)}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Avg Fare</span>
+                    <strong>
+                        ₹${driver.average_fare.toFixed(0)}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Avg Distance</span>
+                    <strong>
+                        ${driver.average_distance.toFixed(1)} km
+                    </strong>
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    /*
+     * Zone dropdown.
+     */
+
+    const zoneMetrics = [
+        {% for zone in zone_metrics %}
+        {
+            city: "{{ zone.city }}",
+            zone: "{{ zone.zone }}",
+            total_trips: {{ zone.total_trips }},
+            completed_trips: {{ zone.completed_trips }},
+            cancelled_trips: {{ zone.cancelled_trips }},
+            cancellation_rate: {{ zone.cancellation_rate }},
+            revenue: {{ zone.revenue }},
+            average_fare: {{ zone.average_fare }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    function showZone(value) {
+
+        const container =
+            document.getElementById("zoneDetails");
+
+        if (!value) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Select a zone to view its performance.
+                </div>
+            `;
+
+            return;
+        }
+
+        const parts = value.split("|");
+
+        const city = parts[0];
+        const zoneName = parts[1];
+
+        const zone =
+            zoneMetrics.find(
+                item =>
+                    item.city === city &&
+                    item.zone === zoneName
+            );
+
+        if (!zone) {
+            return;
+        }
+
+        container.innerHTML = `
+
+            <div class="zone-title">
+
+                <div>
+
+                    <span>${zone.city}</span>
+
+                    <h3>${zone.zone}</h3>
+
+                </div>
+
+                <span class="zone-tag">
+                    Operational Zone
+                </span>
+
+            </div>
+
+
+            <div class="zone-metrics">
+
+                <div>
+                    <span>Total Trips</span>
+                    <strong>${zone.total_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Completed</span>
+                    <strong>${zone.completed_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Cancelled</span>
+                    <strong>${zone.cancelled_trips}</strong>
+                </div>
+
+                <div>
+                    <span>Cancellation Rate</span>
+                    <strong>
+                        ${zone.cancellation_rate.toFixed(1)}%
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Revenue</span>
+                    <strong>
+                        ₹${zone.revenue.toFixed(0)}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Average Fare</span>
+                    <strong>
+                        ₹${zone.average_fare.toFixed(0)}
+                    </strong>
+                </div>
+
+            </div>
+        `;
+    }
+
+
+    /*
+     * Smooth navigation.
+     */
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+
+        item.addEventListener("click", function() {
+
+            document
+                .querySelectorAll(".nav-item")
+                .forEach(nav => nav.classList.remove("active"));
+
+            this.classList.add("active");
+
+        });
+
+    });
+
+</script>
+document.querySelectorAll(".progress-fill").forEach(function (bar) {
+    bar.style.width = bar.dataset.width + "%";
+});
+
+</body>
+</html>
