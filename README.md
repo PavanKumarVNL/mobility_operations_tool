@@ -1,4 +1,3 @@
-````markdown
 # Mobility Operations Intelligence Tool
 
 A Flask-based mobility operations analytics application designed to analyze drivers, trips, zones, cancellations, utilization, and operational anomalies.
@@ -457,8 +456,3 @@ Potential extensions include:
 
 Mobility Operations Intelligence Tool
 Built using Python, Flask, OOP, Data Structures, and Analytics.
-
-```
-
-Available next action: :contentReference[oaicite:0]{index=0}
-```
